@@ -31,6 +31,7 @@ public class PositioningService extends Service {
     double[] mDistances = new double[MAX_BEACONS];
     int mIndex;
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent pIntent) {

@@ -1,24 +1,22 @@
-package com.geolocke.android.geolocketarget.Beans;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-/**
- * Created by ACER on 7/30/2016.
- */
+
 public class Scan implements Parcelable {
     private double mLatitude;
     private double mLongitude;
     private ArrayList<GeolockeIBeacon> mGeolockeIBeacons;
-    private ArrayList<Integer> mRssis;
+    private ArrayList<Integer> mRssiList;
 
     protected Scan(Parcel pParcel) {
         mLatitude = pParcel.readDouble();
         mLongitude = pParcel.readDouble();
         mGeolockeIBeacons = pParcel.readArrayList(GeolockeIBeacon.class.getClassLoader());
-        mRssis = pParcel.readArrayList(int.class.getClassLoader());
+        mRssiList = pParcel.readArrayList(int.class.getClassLoader());
     }
 
     @Override
@@ -27,7 +25,7 @@ public class Scan implements Parcelable {
                 "mLatitude=" + mLatitude +
                 ", mLongitude=" + mLongitude +
                 ", mGeolockeIBeacons=" + mGeolockeIBeacons +
-                ", mRssis=" + mRssis +
+                ", mRssiList=" + mRssiList +
                 '}';
     }
 
@@ -43,16 +41,16 @@ public class Scan implements Parcelable {
         return mGeolockeIBeacons;
     }
 
-    public ArrayList<Integer> getRssis() {
-        return mRssis;
+    public ArrayList<Integer> getRssiList() {
+        return mRssiList;
     }
 
-    public Scan(double pLatitude, double pLongitude, ArrayList<GeolockeIBeacon> pGeolockeIBeacons, ArrayList<Integer> pRssis) {
+    public Scan(double pLatitude, double pLongitude, ArrayList<GeolockeIBeacon> pGeolockeIBeacons, ArrayList<Integer> pRssiList) {
 
         mLatitude = pLatitude;
         mLongitude = pLongitude;
         mGeolockeIBeacons = pGeolockeIBeacons;
-        mRssis = pRssis;
+        mRssiList = pRssiList;
     }
 
     public static final Creator<Scan> CREATOR = new Creator<Scan>() {
@@ -77,6 +75,6 @@ public class Scan implements Parcelable {
         pParcel.writeDouble(mLatitude);
         pParcel.writeDouble(mLongitude);
         pParcel.writeList(mGeolockeIBeacons);
-        pParcel.writeList(mRssis);
+        pParcel.writeList(mRssiList);
     }
 }

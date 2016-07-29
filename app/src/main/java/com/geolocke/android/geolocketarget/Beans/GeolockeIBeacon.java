@@ -1,17 +1,13 @@
-package com.geolocke.android.geolocketarget.Beans;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by ACER on 7/30/2016.
- */
 public class GeolockeIBeacon implements Parcelable {
 
     private final String mMacAddress;
     private final String mUUID;
     private final String mName;
-    private final int mRssi;
     private final int mMajor;
     private final int mMinor;
     private final double mLatitude;
@@ -21,7 +17,6 @@ public class GeolockeIBeacon implements Parcelable {
         mMacAddress = pParcel.readString();
         mUUID = pParcel.readString();
         mName = pParcel.readString();
-        mRssi = pParcel.readInt();
         mMajor= pParcel.readInt();
         mMinor = pParcel.readInt();
         mLatitude = pParcel.readDouble();
@@ -32,7 +27,6 @@ public class GeolockeIBeacon implements Parcelable {
         mMacAddress = pMacAddress;
         mUUID = pUUID;
         mName = pName;
-        mRssi = pRssi;
         mMajor = pMajor;
         mMinor = pMinor;
         mLatitude = pLatitude;
@@ -51,9 +45,7 @@ public class GeolockeIBeacon implements Parcelable {
         return mName;
     }
 
-    public int getRssi() {
-        return mRssi;
-    }
+
 
     public int getMajor() {
         return mMajor;
@@ -93,17 +85,14 @@ public class GeolockeIBeacon implements Parcelable {
         pParcel.writeString(mMacAddress);
         pParcel.writeString(mUUID);
         pParcel.writeString(mName);
-        pParcel.writeInt(mRssi);
+
         pParcel.writeInt(mMajor);
         pParcel.writeInt(mMinor);
         pParcel.writeDouble(mLatitude);
         pParcel.writeDouble(mLongitude);
     }
 
-    //@Override
-    /*public String toString(){
-        return "MAC Address: "+mMacAddress+" UUID: "+mUUID+" Name: "+mName+" RSSI: "+mRssi+" Major: "+ mMajor+" Minor: "+mMinor+" Building ID: "+mBuildingID+" Floor ID: "+mFloorID+" Scan: "+mLatitude+","+mLongitude;
-    }*/
+
 
     @Override
     public String toString() {
@@ -111,7 +100,6 @@ public class GeolockeIBeacon implements Parcelable {
                 "MacAddress='" + mMacAddress + '\'' +
                 ", UUID='" + mUUID + '\'' +
                 ", Name='" + mName + '\'' +
-                ", Rssi=" + mRssi +
                 ", Major=" + mMajor +
                 ", Minor=" + mMinor +
                 ", Latitude=" + mLatitude +

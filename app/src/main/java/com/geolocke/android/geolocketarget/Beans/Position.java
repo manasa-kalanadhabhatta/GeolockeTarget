@@ -1,11 +1,8 @@
-package com.geolocke.android.geolocketarget.Beans;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by ACER on 7/30/2016.
- */
 public class Position implements Parcelable {
     private double mLatitude;
     private double mLongitude;

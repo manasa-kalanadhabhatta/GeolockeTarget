@@ -1,33 +1,31 @@
-package com.geolocke.android.geolocketarget.Beans;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-/**
- * Created by ACER on 7/30/2016.
- */
+
 public class Location implements Parcelable {
-    private ArrayList<Position> mPositionsList;
+    private ArrayList<Position> mPositionList;
 
     @Override
     public String toString() {
         return "Location{" +
-                "mPositionsList=" + mPositionsList +
+                "mPositionList=" + mPositionList +
                 '}';
     }
 
-    public ArrayList<Position> getPositionsList() {
-        return mPositionsList;
+    public ArrayList<Position> getPositionList() {
+        return mPositionList;
     }
 
-    public Location(ArrayList<Position> pPositionsList) {
-        mPositionsList = pPositionsList;
+    public Location(ArrayList<Position> pPositionList) {
+        mPositionList = pPositionList;
     }
 
     protected Location(Parcel pParcel) {
-        mPositionsList = pParcel.readArrayList(Position.class.getClassLoader());
+        mPositionList = pParcel.readArrayList(Position.class.getClassLoader());
     }
 
     public static final Creator<Location> CREATOR = new Creator<Location>() {
@@ -49,6 +47,6 @@ public class Location implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel pParcel, int pI) {
-        pParcel.writeList(mPositionsList);
+        pParcel.writeList(mPositionList);
     }
 }

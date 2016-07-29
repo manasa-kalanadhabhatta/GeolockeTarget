@@ -1,21 +1,18 @@
-package com.geolocke.android.geolocketarget.Beans;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by ACER on 7/30/2016.
- */
-public final class iBeacon implements Parcelable
+
+public final class IBeacon implements Parcelable
 {
-    private final int mRssi;
     private final String mMacAddress;
     private final String mUUID;
     private final int mMajor;
     private final int mMinor;
     private final String mName;
 
-    public static final Creator<iBeacon> CREATOR = new Creator() {
+    public static final Creator<IBeacon> CREATOR = new Creator() {
         @Override
         public Object createFromParcel(Parcel parcel) {
             return null;
@@ -28,18 +25,16 @@ public final class iBeacon implements Parcelable
     };
 
 
-    private iBeacon(Parcel pParcel) {
+    private IBeacon(Parcel pParcel) {
 
         this.mMacAddress = pParcel.readString();
         this.mUUID = pParcel.readString();
         this.mName = pParcel.readString();
         this.mMajor = pParcel.readInt();
         this.mMinor = pParcel.readInt();
-        this.mRssi = pParcel.readInt();
     }
 
-    public iBeacon(int pRssi, String pMacAddress, String pUUID, int pMajor, int pMinor, String pName) {
-        this.mRssi = pRssi;
+    public IBeacon(int pRssi, String pMacAddress, String pUUID, int pMajor, int pMinor, String pName) {
         this.mMacAddress = pMacAddress;
         this.mUUID = pUUID;
         this.mMajor = pMajor;
@@ -55,7 +50,7 @@ public final class iBeacon implements Parcelable
         if(this == var1) {
             return true;
         } else if(var1 != null && this.getClass() == var1.getClass()) {
-            iBeacon var2 = (iBeacon)var1;
+            IBeacon var2 = (IBeacon)var1;
             return this.mMacAddress.equals(var2.mMacAddress);
         } else {
             return false;
@@ -85,9 +80,6 @@ public final class iBeacon implements Parcelable
         return this.mUUID;
     }
 
-    public int getRssi() {
-        return this.mRssi;
-    }
 
     public int hashCode() {
         int var1 = this.mUUID.hashCode();
@@ -95,15 +87,10 @@ public final class iBeacon implements Parcelable
         return 31 * var1 + this.mMinor;
     }
 
-    /*public String toString() {
-        return "Name: "+this.mName +" mMacAddress: "+ this.mMacAddress + " UUDD: "+ this.mUUID + " mMajor: " + this.mMajor + " mMinor: " + this.mMinor + " RSSI: "+ this.mRssi;
-
-    }*/
 
     @Override
     public String toString() {
-        return "iBeacon{" +
-                "Rssi=" + mRssi +
+        return "IBeacon{" +
                 ", MacAddress='" + mMacAddress + '\'' +
                 ", UUID='" + mUUID + '\'' +
                 ", Major=" + mMajor +
@@ -118,7 +105,6 @@ public final class iBeacon implements Parcelable
         pParcel.writeString(this.mName);
         pParcel.writeInt(this.mMajor);
         pParcel.writeInt(this.mMinor);
-        pParcel.writeInt(this.mRssi);
 
     }
 }
