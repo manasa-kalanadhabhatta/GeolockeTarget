@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
 
         final BluetoothAdapter mBluetoothAdapter;
 
+        int count = 0;
+
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
