@@ -7,66 +7,50 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Manasa on 08-07-2016.
  */
 public class TimerService extends Service {
 
-    static JSONArray mListArray;
+    static JSONArray sListArray;
     JSONArray mScanArray, mParseArray;
     ListReceiver mListReceiver;
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(Intent pIntent) {
         return null;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent pIntent, int pFlags, int pStartId) {
         IntentFilter filter = new IntentFilter();
         filter.addAction("SCANLIST_BROADCAST");
         mListReceiver = new ListReceiver();
         registerReceiver(mListReceiver,filter);
 
-        final Handler mHandler = new Handler();
+        final Handler handler = new Handler();
         Runnable run = new Runnable() {
             @Override
             public void run() {
-                ScanService.clear = 1;
+                ScanService.sClear = 1;
                 Long timestamp = System.currentTimeMillis()/1000;
                 try {
                     mScanArray = new JSONArray();
                     mParseArray = new JSONArray();
-                    if(mListArray != null){
-                        for(int i=0; i<mListArray.length(); i++){
-                            mScanArray.put(mListArray.getJSONObject(i));
+                    if(sListArray != null){
+                        for(int i = 0; i< sListArray.length(); i++){
+                            mScanArray.put(sListArray.getJSONObject(i));
                         }
-
-                        /*String[] distinctMacAddresses = new String[mScanArray.length()];
-                        int index = 0;
-
-                        for(int i=mScanArray.length()-1; i>-1; i--){
-                            String MacAddress = mScanArray.getJSONObject(i).get("MAC_ADDRESS").toString();
-                            if(!Arrays.asList(distinctMacAddresses).contains(MacAddress)){
-                                Log.i("got and putting", MacAddress);
-                                distinctMacAddresses[index] = MacAddress;
-                                index++;
-                                mParseArray.put(mScanArray.getJSONObject(i));
-                            }
-                        }*/
 
                         String[] distinctMacAddresses = new String[mScanArray.length()];
                         int count, index = 0;
@@ -122,21 +106,21 @@ public class TimerService extends Service {
                         scanObject.put("SCAN_ARRAY", mParseArray);
                         scanObject.put("SCAN_TIME", timestamp);
 
-                        Intent i = new Intent();
-                        i.putExtra("SCAN_STRUCTURE",scanObject.toString());
-                        i.setAction("SCAN_BROADCAST");
-                        sendBroadcast(i);
+                        Intent intent = new Intent();
+                        intent.putExtra("SCAN_STRUCTURE",scanObject.toString());
+                        intent.setAction("SCAN_BROADCAST");
+                        sendBroadcast(intent);
                         Log.i("got macs",distinctMacAddresses.toString());
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                mHandler.postDelayed(this, 3000);
+                handler.postDelayed(this, 3000);
             }
         };
 
-        mHandler.post(run);
+        handler.post(run);
 
         return START_STICKY;
     }
@@ -144,10 +128,10 @@ public class TimerService extends Service {
     public class ListReceiver extends BroadcastReceiver{
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context pContext, Intent pIntent) {
             try {
-                mListArray = new JSONArray(intent.getStringExtra("SCAN_LIST"));
-                Log.i("TimerService got:", mListArray.toString());
+                sListArray = new JSONArray(pIntent.getStringExtra("SCAN_LIST"));
+                Log.i("TimerService got:", sListArray.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }

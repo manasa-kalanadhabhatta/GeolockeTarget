@@ -27,18 +27,18 @@ public class PositioningService extends Service {
     public static final Double RADIANS = 57.2957795;
     private static final int MAX_BEACONS = 10;
     ParsedListReceiver mParsedListReceiver;
-    double[][]positions = new double[MAX_BEACONS][2];
-    double[] distances = new double[MAX_BEACONS];
-    int index;
+    double[][] mPositions = new double[MAX_BEACONS][2];
+    double[] mDistances = new double[MAX_BEACONS];
+    int mIndex;
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(Intent pIntent) {
         return null;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent pIntent, int pFlags, int pStartId) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("PARSED_BROADCAST");
         mParsedListReceiver = new ParsedListReceiver();
@@ -50,13 +50,13 @@ public class PositioningService extends Service {
     public class ParsedListReceiver extends BroadcastReceiver{
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context pContext, Intent pIntent) {
             Log.i("got", "intent");
 
             try{
-                JSONObject mParseObject = new JSONObject(intent.getStringExtra("PARSED_STRUCTURE"));
+                JSONObject mParseObject = new JSONObject(pIntent.getStringExtra("PARSED_STRUCTURE"));
                 JSONArray mParseArray = mParseObject.getJSONArray("PARSED_LIST");
-                index = 0;
+                mIndex = 0;
                 for(int i=0; i<mParseArray.length(); i++){
                     JSONObject deviceObject = mParseArray.getJSONObject(i);
                     // TODO: 29-07-2016 put actual latlng 
@@ -64,12 +64,12 @@ public class PositioningService extends Service {
                     double lng = deviceObject.getDouble("LONGITUDE");*/
                     double lat = 28.5253323;
                     double lng = 77.5782068;
-                    positions[index] = LatLngToXY(lat,lng);
-                    distances[index] = deviceObject.getDouble("DISTANCE_IN_METRES");
-                    index++;
+                    mPositions[mIndex] = LatLngToXY(lat,lng);
+                    mDistances[mIndex] = deviceObject.getDouble("DISTANCE_IN_METRES");
+                    mIndex++;
                 }
 
-                NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
+                NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(mPositions, mDistances), new LevenbergMarquardtOptimizer());
                 LeastSquaresOptimizer.Optimum optimum = solver.solve();
 
                 double[] centroid = optimum.getPoint().toArray();
@@ -83,11 +83,11 @@ public class PositioningService extends Service {
                 Log.i("Standard Deviation:",standardDeviation.toArray().toString());
                 Log.i("Covariance Matrix:",covarianceMatrix.getData().toString());
 
-                Intent i = new Intent();
-                i.putExtra("LATITUDE",latlng[0]);
-                i.putExtra("LONGITUDE",latlng[1]);
-                i.setAction("POSITION");
-                sendBroadcast(i);
+                Intent intent = new Intent();
+                intent.putExtra("LATITUDE",latlng[0]);
+                intent.putExtra("LONGITUDE",latlng[1]);
+                intent.setAction("POSITION");
+                sendBroadcast(intent);
 
             }catch (JSONException e){
                 e.printStackTrace();
@@ -102,10 +102,10 @@ public class PositioningService extends Service {
         stopSelf();
     }
 
-    public double[] LatLngToXY(Double Lat, Double Lng){
+    public double[] LatLngToXY(Double pLat, Double pLng){
         Double angle = DEG_TO_RADIANS(0.0);
-        Double xx = (Lng)*METERS_DEGLON(0.0);
-        Double yy = (Lat)*METERS_DEGLAT(0.0);
+        Double xx = (pLng)*METERS_DEGLON(0.0);
+        Double yy = (pLat)*METERS_DEGLAT(0.0);
 
         Double r = Math.sqrt(xx*xx + yy*yy);
 
@@ -127,11 +127,11 @@ public class PositioningService extends Service {
 
     }
 
-    public double[] XYToLatLng(Double x, Double y){
+    public double[] XYToLatLng(Double pX, Double pY){
      /* X,Y to Lat/Lon Coordinate Translation  */
         Double angle = DEG_TO_RADIANS(0.0);
-        Double pxpos_mtrs = x;
-        Double pypos_mtrs = y;
+        Double pxpos_mtrs = pX;
+        Double pypos_mtrs = pY;
         Double xx = pxpos_mtrs;
         Double yy = pypos_mtrs;
         Double r = Math.sqrt(xx*xx + yy*yy);
@@ -151,22 +151,22 @@ public class PositioningService extends Service {
         return FinalXY;
     }
 
-    public Double METERS_DEGLON(Double x)
+    public Double METERS_DEGLON(Double pX)
     {
 
-        Double d2r=DEG_TO_RADIANS(x);
+        Double d2r=DEG_TO_RADIANS(pX);
         return((111415.13 * Math.cos(d2r))- (94.55 * Math.cos(3.0*d2r)) + (0.12 * Math.cos(5.0*d2r)));
     }
 
-    public Double  METERS_DEGLAT(Double x)
+    public Double  METERS_DEGLAT(Double pX)
     {
-        Double  d2r=DEG_TO_RADIANS(x);
+        Double  d2r=DEG_TO_RADIANS(pX);
         return(111132.09 - (566.05 * Math.cos(2.0*d2r))+ (1.20 * Math.cos(4.0*d2r)) - (0.002 * Math.cos(6.0*d2r)));
 
     }
-    public Double DEG_TO_RADIANS(Double x)
+    public Double DEG_TO_RADIANS(Double pX)
     {
-        return (x/RADIANS);
+        return (pX/RADIANS);
     }
 
 }

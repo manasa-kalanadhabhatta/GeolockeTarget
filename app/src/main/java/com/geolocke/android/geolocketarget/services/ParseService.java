@@ -26,12 +26,12 @@ public class ParseService extends Service {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(Intent pIntent) {
         return null;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent pIntent, int pFlags, int pStartId) {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("SCAN_BROADCAST");
@@ -43,9 +43,9 @@ public class ParseService extends Service {
 
     public class ScanReceiver extends BroadcastReceiver{
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context pContext, Intent pIntent) {
             try {
-                JSONObject scanObject = new JSONObject(intent.getStringExtra("SCAN_STRUCTURE"));
+                JSONObject scanObject = new JSONObject(pIntent.getStringExtra("SCAN_STRUCTURE"));
                 Log.i("ParseService got:", scanObject.toString());
 
                 mParseObject = new JSONObject();
@@ -57,9 +57,9 @@ public class ParseService extends Service {
 
                     Double rssi = mDeviceObject.getDouble("RSSI");
                     Double error = mDeviceObject.getDouble("ERROR");
-                    int txpw = mDeviceObject.getInt("TX_POWER"); // TODO: 08-07-2016 have to set actual tx power
-                    Double distance = calculateDistance(rssi, txpw);
-                    Double accuracy = calculateDistance(error, txpw);
+                    int txPower = mDeviceObject.getInt("TX_POWER"); // TODO: 08-07-2016 have to set actual tx power
+                    Double distance = calculateDistance(rssi, txPower);
+                    Double accuracy = calculateDistance(error, txPower);
                     mDeviceObject.put("DISTANCE_IN_METRES", distance);
                     mDeviceObject.put("ACCURACY", accuracy); // TODO: 12-07-2016 have to correct accuracy
 
@@ -67,12 +67,12 @@ public class ParseService extends Service {
 
                     String uuid = mDeviceObject.getString("UUID");
                     String[] splitresult = uuid.split("-");
-                    String Lat = splitresult[0];
-                    Long l = Long.parseLong(Lat, 16);
+                    String lat = splitresult[0];
+                    Long l = Long.parseLong(lat, 16);
                     Float f = Float.intBitsToFloat(l.intValue());
                     Double latitude = Double.valueOf(f);
-                    String Lng = splitresult[1]+splitresult[2];
-                    Long j = Long.parseLong(Lng, 16);
+                    String lng = splitresult[1]+splitresult[2];
+                    Long j = Long.parseLong(lng, 16);
                     Float k = Float.intBitsToFloat(j.intValue());
                     Double longitude = Double.valueOf(k);
                     String buildingId = splitresult[3];
@@ -87,10 +87,10 @@ public class ParseService extends Service {
                 mParseObject.put("SCAN_TIME", scanObject.getLong("SCAN_TIME"));
                 Log.i("Parsed Object", mParseObject.toString());
 
-                Intent i = new Intent();
-                i.putExtra("PARSED_STRUCTURE",mParseObject.toString());
-                i.setAction("PARSED_BROADCAST");
-                sendBroadcast(i);
+                Intent intent = new Intent();
+                intent.putExtra("PARSED_STRUCTURE",mParseObject.toString());
+                intent.setAction("PARSED_BROADCAST");
+                sendBroadcast(intent);
                 Log.i("broadcast sent", "from parseservice");
 
             } catch (JSONException e) {
@@ -99,10 +99,10 @@ public class ParseService extends Service {
         }
     }
 
-    public Double calculateDistance(Double rssi, int txpw){
-        if(rssi == 0)
+    public Double calculateDistance(Double pRssi, int pTxPower){
+        if(pRssi == 0)
             return -1.0;
-        Double ratio = rssi*1.0/txpw;
+        Double ratio = pRssi*1.0/pTxPower;
         if(ratio<1.0){
             return Math.pow(ratio, 10);
         }else {

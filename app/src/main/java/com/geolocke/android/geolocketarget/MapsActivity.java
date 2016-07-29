@@ -27,8 +27,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public PositionReceiver mPositionReceiver;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle pSavedInstanceState) {
+        super.onCreate(pSavedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -42,9 +42,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public class PositionReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            mLatitude = intent.getDoubleExtra("LATITUDE",0.0);
-            mLongitude = intent.getDoubleExtra("LONGITUDE",0.0);
+        public void onReceive(Context pContext, Intent pIntent) {
+            mLatitude = pIntent.getDoubleExtra("LATITUDE",0.0);
+            mLongitude = pIntent.getDoubleExtra("LONGITUDE",0.0);
         }
     }
 
@@ -58,17 +58,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
-    public void button(View v){
-        Double Lat = mLatitude;
-        Double Lng =mLongitude;
-        LatLng butt = new LatLng(Lat, Lng);
-        mMap.addMarker(new MarkerOptions().position(butt).title("Button wala marker").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+    public void button(View pView){
+        Double latitude = mLatitude;
+        Double longitude = mLongitude;
+        LatLng buttonLatLng = new LatLng(latitude, longitude);
+        mMap.addMarker(new MarkerOptions().position(buttonLatLng).title("Button wala marker").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(button));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(butt, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(buttonLatLng, 15));
     }
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onMapReady(GoogleMap pGoogleMap) {
+        mMap = pGoogleMap;
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
