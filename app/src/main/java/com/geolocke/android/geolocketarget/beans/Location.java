@@ -1,4 +1,4 @@
-package com.geolocke.android.geolocketarget.bean;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;

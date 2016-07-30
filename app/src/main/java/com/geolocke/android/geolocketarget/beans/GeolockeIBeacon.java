@@ -1,4 +1,4 @@
-package com.geolocke.android.geolocketarget.bean;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -23,7 +23,7 @@ public class GeolockeIBeacon implements Parcelable {
         mLongitude = pParcel.readDouble();
     }
 
-    public GeolockeIBeacon(String pMacAddress, String pUUID, String pName, int pRssi, int pMajor, int pMinor, double pLatitude, double pLongitude) {
+    public GeolockeIBeacon(String pMacAddress, String pUUID, String pName, int pMajor, int pMinor, double pLatitude, double pLongitude) {
         mMacAddress = pMacAddress;
         mUUID = pUUID;
         mName = pName;
