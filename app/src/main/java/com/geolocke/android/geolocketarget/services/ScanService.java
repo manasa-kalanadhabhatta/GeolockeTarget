@@ -38,7 +38,7 @@ public class ScanService extends Service {
                         int startByte = 2;
                         boolean patternFound = false;
                         while (startByte <= 5) {
-                            if (    ((int) scanRecord[startByte + 2] & 0xff) == 0x02 && //Identifies an IBeacon
+                            if (    ((int) scanRecord[startByte + 2] & 0xff) == 0x02 && //Identifies an IBeaconBean
                                     ((int) scanRecord[startByte + 3] & 0xff) == 0x15) { //Identifies correct data length
                                 patternFound = true;
                                 break;

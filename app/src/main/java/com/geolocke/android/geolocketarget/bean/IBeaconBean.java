@@ -1,10 +1,10 @@
-package com.geolocke.android.geolocketarget.beans;
+package com.geolocke.android.geolocketarget.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 
-public final class IBeacon implements Parcelable
+public final class IBeaconBean implements Parcelable
 {
     private final String mMacAddress;
     private final String mUUID;
@@ -12,7 +12,7 @@ public final class IBeacon implements Parcelable
     private final int mMinor;
     private final String mName;
 
-    public static final Creator<IBeacon> CREATOR = new Creator() {
+    public static final Creator<IBeaconBean> CREATOR = new Creator() {
         @Override
         public Object createFromParcel(Parcel parcel) {
             return null;
@@ -25,7 +25,7 @@ public final class IBeacon implements Parcelable
     };
 
 
-    private IBeacon(Parcel pParcel) {
+    private IBeaconBean(Parcel pParcel) {
 
         this.mMacAddress = pParcel.readString();
         this.mUUID = pParcel.readString();
@@ -34,7 +34,7 @@ public final class IBeacon implements Parcelable
         this.mMinor = pParcel.readInt();
     }
 
-    public IBeacon(int pRssi, String pMacAddress, String pUUID, int pMajor, int pMinor, String pName) {
+    public IBeaconBean(int pRssi, String pMacAddress, String pUUID, int pMajor, int pMinor, String pName) {
         this.mMacAddress = pMacAddress;
         this.mUUID = pUUID;
         this.mMajor = pMajor;
@@ -50,7 +50,7 @@ public final class IBeacon implements Parcelable
         if(this == var1) {
             return true;
         } else if(var1 != null && this.getClass() == var1.getClass()) {
-            IBeacon var2 = (IBeacon)var1;
+            IBeaconBean var2 = (IBeaconBean)var1;
             return this.mMacAddress.equals(var2.mMacAddress);
         } else {
             return false;
@@ -90,7 +90,7 @@ public final class IBeacon implements Parcelable
 
     @Override
     public String toString() {
-        return "IBeacon{" +
+        return "IBeaconBean{" +
                 ", MacAddress='" + mMacAddress + '\'' +
                 ", UUID='" + mUUID + '\'' +
                 ", Major=" + mMajor +
