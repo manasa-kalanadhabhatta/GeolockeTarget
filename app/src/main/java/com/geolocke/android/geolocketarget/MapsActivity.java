@@ -8,10 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.geolocke.android.geolocketarget.services.ParseService;
-import com.geolocke.android.geolocketarget.services.PositioningService;
-import com.geolocke.android.geolocketarget.services.ScanService;
-import com.geolocke.android.geolocketarget.services.TimerService;
+import com.geolocke.android.geolocketarget.beans.Location;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -23,8 +20,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private Location mLocation;
     private double mLatitude, mLongitude;
-    public PositionReceiver mPositionReceiver;
+    public LocationReceiver mLocationReceiver;
 
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
@@ -35,16 +33,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("POSITION");
-        mPositionReceiver = new PositionReceiver();
-        registerReceiver(mPositionReceiver, intentFilter);
+        intentFilter.addAction("LOCATION");
+        mLocationReceiver = new LocationReceiver();
+        registerReceiver(mLocationReceiver, intentFilter);
     }
 
-    public class PositionReceiver extends BroadcastReceiver {
+    public class LocationReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context pContext, Intent pIntent) {
-            mLatitude = pIntent.getDoubleExtra("LATITUDE",0.0);
-            mLongitude = pIntent.getDoubleExtra("LONGITUDE",0.0);
+            mLocation = pIntent.getExtras().getParcelable("LOCATION");
+            mLatitude = mLocation.getLatitude();
+            mLongitude = mLocation.getLongitude();
         }
     }
 
@@ -78,6 +77,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mPositionReceiver);
+        unregisterReceiver(mLocationReceiver);
     }
 }

@@ -8,11 +8,15 @@ import java.util.ArrayList;
 
 public class Location implements Parcelable {
     private ArrayList<Position> mPositionList;
+    private double mLatitude;
+    private double mLongitude;
 
     @Override
     public String toString() {
         return "Location{" +
                 "mPositionList=" + mPositionList +
+                ", mLatitude=" + mLatitude +
+                ", mLongitude=" + mLongitude +
                 '}';
     }
 
@@ -20,12 +24,24 @@ public class Location implements Parcelable {
         return mPositionList;
     }
 
-    public Location(ArrayList<Position> pPositionList) {
+    public double getLatitude() {
+        return mLatitude;
+    }
+
+    public double getLongitude() {
+        return mLongitude;
+    }
+
+    public Location(ArrayList<Position> pPositionList, double pLatitude, double pLongitude) {
         mPositionList = pPositionList;
+        mLatitude = pLatitude;
+        mLongitude = pLongitude;
     }
 
     protected Location(Parcel pParcel) {
         mPositionList = pParcel.readArrayList(Position.class.getClassLoader());
+        mLatitude = pParcel.readDouble();
+        mLongitude = pParcel.readDouble();
     }
 
     public static final Creator<Location> CREATOR = new Creator<Location>() {
@@ -48,5 +64,7 @@ public class Location implements Parcelable {
     @Override
     public void writeToParcel(Parcel pParcel, int pI) {
         pParcel.writeList(mPositionList);
+        pParcel.writeDouble(mLatitude);
+        pParcel.writeDouble(mLongitude);
     }
 }

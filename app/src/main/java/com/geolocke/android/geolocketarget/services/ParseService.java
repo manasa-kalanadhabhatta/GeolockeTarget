@@ -10,6 +10,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.geolocke.android.geolocketarget.beans.GeolockeIBeacon;
+import com.geolocke.android.geolocketarget.beans.GeolockeIBeaconScan;
+import com.geolocke.android.geolocketarget.beans.IBeacon;
+import com.geolocke.android.geolocketarget.beans.IBeaconScan;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +26,9 @@ import java.util.ArrayList;
  */
 public class ParseService extends Service {
     ScanReceiver mScanReceiver;
-    JSONObject mParseObject, mDeviceObject;
-    JSONArray mDeviceListArray, mParsedList;
+    GeolockeIBeaconScan mGeolockeIBeaconScan;
+    ArrayList<GeolockeIBeacon> mGeolockeIBeaconList;
+    ArrayList<Integer> mRssiList;
 
     @Nullable
     @Override
@@ -34,7 +40,7 @@ public class ParseService extends Service {
     public int onStartCommand(Intent pIntent, int pFlags, int pStartId) {
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("SCAN_BROADCAST");
+        intentFilter.addAction("IBEACON_SCAN_BROADCAST");
         mScanReceiver = new ScanReceiver();
         registerReceiver(mScanReceiver, intentFilter);
 
@@ -44,69 +50,51 @@ public class ParseService extends Service {
     public class ScanReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context pContext, Intent pIntent) {
-            try {
-                JSONObject scanObject = new JSONObject(pIntent.getStringExtra("SCAN_STRUCTURE"));
-                Log.i("ParseService got:", scanObject.toString());
 
-                mParseObject = new JSONObject();
-                mParsedList = new JSONArray();
+            IBeaconScan iBeaconScan = pIntent.getExtras().getParcelable("IBEACON_SCAN");
+            ArrayList<IBeacon> iBeaconList = new ArrayList<IBeacon>();
+            iBeaconList = iBeaconScan.getIBeaconList();
+            ArrayList<Integer> rssiList = new ArrayList<Integer>();
+            rssiList = iBeaconScan.getRssiList();
 
-                mDeviceListArray = scanObject.getJSONArray("SCAN_ARRAY");
-                for(int i=0; i<mDeviceListArray.length(); i++){
-                    mDeviceObject = mDeviceListArray.getJSONObject(i);
+            mGeolockeIBeaconList = new ArrayList<GeolockeIBeacon>();
+            mRssiList = new ArrayList<Integer>();
 
-                    Double rssi = mDeviceObject.getDouble("RSSI");
-                    Double error = mDeviceObject.getDouble("ERROR");
-                    int txPower = mDeviceObject.getInt("TX_POWER"); // TODO: 08-07-2016 have to set actual tx power
-                    Double distance = calculateDistance(rssi, txPower);
-                    Double accuracy = calculateDistance(error, txPower);
-                    mDeviceObject.put("DISTANCE_IN_METRES", distance);
-                    mDeviceObject.put("ACCURACY", accuracy); // TODO: 12-07-2016 have to correct accuracy
+            for(int i=0; i<iBeaconList.size(); i++){
+                IBeacon iBeacon = iBeaconList.get(i);
+                int rssi = rssiList.get(i);
 
-                    // TODO: 08-07-2016 get latLng from UUID and put in mDeviceObject
+                String uuid = iBeacon.getUUID();
+                String[] split = uuid.split("-");
 
-                    String uuid = mDeviceObject.getString("UUID");
-                    String[] splitresult = uuid.split("-");
-                    String lat = splitresult[0];
-                    Long l = Long.parseLong(lat, 16);
-                    Float f = Float.intBitsToFloat(l.intValue());
-                    Double latitude = Double.valueOf(f);
-                    String lng = splitresult[1]+splitresult[2];
-                    Long j = Long.parseLong(lng, 16);
-                    Float k = Float.intBitsToFloat(j.intValue());
-                    Double longitude = Double.valueOf(k);
-                    String buildingId = splitresult[3];
-                    String floorId = splitresult[4].substring(0, 4);
-                    mDeviceObject.put("LATITUDE", latitude);
-                    mDeviceObject.put("LONGITUDE", longitude);
+                String lat = split[0];
+                Long l = Long.parseLong(lat, 16);
+                Float f = Float.intBitsToFloat(l.intValue());
+                Double latitude = Double.valueOf(f);
 
-                    mParsedList.put(mDeviceObject);
-                }
-                Log.i("Parsed List", mParsedList.toString());
-                mParseObject.put("PARSED_LIST", mParsedList);
-                mParseObject.put("SCAN_TIME", scanObject.getLong("SCAN_TIME"));
-                Log.i("Parsed Object", mParseObject.toString());
+                String lng = split[1]+split[2];
+                Long j = Long.parseLong(lng, 16);
+                Float k = Float.intBitsToFloat(j.intValue());
+                Double longitude = Double.valueOf(k);
 
-                Intent intent = new Intent();
-                intent.putExtra("PARSED_STRUCTURE",mParseObject.toString());
-                intent.setAction("PARSED_BROADCAST");
-                sendBroadcast(intent);
-                Log.i("broadcast sent", "from parseservice");
+                // TODO: 31-07-2016 store buildingId and floorId somewhere
+                String buildingId = split[3];
+                String floorId = split[4].substring(0, 4);
 
-            } catch (JSONException e) {
-                e.printStackTrace();
+                GeolockeIBeacon geolockeIBeacon = new GeolockeIBeacon(iBeacon.getMacAddress(),iBeacon.getUUID(),iBeacon.getName(),iBeacon.getMajor(),iBeacon.getMinor(),iBeacon.getTxPower(),latitude,longitude);
+
+                mGeolockeIBeaconList.add(geolockeIBeacon);
+                mRssiList.add(rssi);
             }
-        }
-    }
 
-    public Double calculateDistance(Double pRssi, int pTxPower){
-        if(pRssi == 0)
-            return -1.0;
-        Double ratio = pRssi*1.0/pTxPower;
-        if(ratio<1.0){
-            return Math.pow(ratio, 10);
-        }else {
-            return ((0.89976)*Math.pow(ratio,7.7095) + 0.111);
+            mGeolockeIBeaconScan = new GeolockeIBeaconScan(mGeolockeIBeaconList,mRssiList);
+
+            Intent intent = new Intent();
+            intent.putExtra("GEOLOCKE_IBEACON_SCAN",mGeolockeIBeaconScan);
+            intent.setAction("GEOLOCKE_IBEACON_SCAN_BROADCAST");
+            sendBroadcast(intent);
+            Log.i("broadcast sent", "from parseservice");
+
         }
     }
 

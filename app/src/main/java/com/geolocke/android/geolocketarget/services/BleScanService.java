@@ -7,17 +7,23 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.geolocke.android.geolocketarget.beans.BleBeaconScan;
+import com.geolocke.android.geolocketarget.beans.IBeacon;
+import com.geolocke.android.geolocketarget.beans.IBeaconScan;
+
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by Manasa on 06-07-2016.
  */
-public class ScanService extends Service {
+public class BleScanService extends Service {
 
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    JSONArray mDeviceList = new JSONArray();
+    ArrayList<IBeacon> mIBeaconArrayList = new ArrayList<IBeacon>();
+    ArrayList<Integer> mRssiArrayList = new ArrayList<Integer>();
+    BleBeaconScan mBleBeaconScan;
     public static int sClear = 0;
 
     @Nullable
@@ -66,32 +72,23 @@ public class ScanService extends Service {
                             int minor = (scanRecord[startByte+22] & 0xff) * 0x100 + (scanRecord[startByte+23] & 0xff);
                             byte txPower = scanRecord[startByte+24];
 
-                            //Structure
-                            try {
-                                if(sClear ==1){
-                                    mDeviceList = new JSONArray();
-                                    sClear =0;
-                                }
-                                JSONObject deviceDetails = new JSONObject();
-                                deviceDetails.put("FRIENDLY_NAME",device.getName());
-                                deviceDetails.put("MAC_ADDRESS",device.getAddress());
-                                deviceDetails.put("UUID",uuid);
-                                deviceDetails.put("MAJOR",major);
-                                deviceDetails.put("MINOR",minor);
-                                deviceDetails.put("RSSI",rssi);
-                                deviceDetails.put("TX_POWER",txPower);
-                                mDeviceList.put(deviceDetails);
 
-                                Intent intent = new Intent();
-                                intent.putExtra("SCAN_LIST", mDeviceList.toString());
-                                intent.setAction("SCANLIST_BROADCAST");
-                                sendBroadcast(intent);
-
-                                //Toast.makeText(getApplicationContext(), "First Broadcast Sent.", Toast.LENGTH_SHORT).show();
-
-                            }catch (JSONException e){
-                                e.printStackTrace();
+                            if(sClear ==1){
+                                mIBeaconArrayList.clear();
+                                mRssiArrayList.clear();
+                                sClear =0;
                             }
+
+                            IBeacon iBeacon = new IBeacon(device.getAddress(),uuid,major,minor,device.getName(),txPower);
+                            mIBeaconArrayList.add(iBeacon);
+                            mRssiArrayList.add(rssi);
+
+                            mBleBeaconScan = new BleBeaconScan(mIBeaconArrayList,mRssiArrayList);
+
+                            Intent intent = new Intent();
+                            intent.putExtra("BLE_SCAN",mBleBeaconScan);
+                            intent.setAction("BLE_SCAN_BROADCAST");
+                            sendBroadcast(intent);
                         }
                     }
                 };

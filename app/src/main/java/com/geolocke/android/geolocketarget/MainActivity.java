@@ -9,8 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.geolocke.android.geolocketarget.services.ParseService;
 import com.geolocke.android.geolocketarget.services.PositioningService;
-import com.geolocke.android.geolocketarget.services.ScanService;
-import com.geolocke.android.geolocketarget.services.TimerService;
+import com.geolocke.android.geolocketarget.services.BleScanService;
+import com.geolocke.android.geolocketarget.services.FilterService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
             bluetoothAdapter.enable();
         }
 
-        startService(new Intent(getBaseContext(), ScanService.class));
+        startService(new Intent(getBaseContext(), BleScanService.class));
         startService(new Intent(getBaseContext(), ParseService.class));
-        startService(new Intent(getBaseContext(), TimerService.class));
+        startService(new Intent(getBaseContext(), FilterService.class));
         startService(new Intent(getBaseContext(), PositioningService.class));
 
         Intent intent = new Intent(this,MapsActivity.class);
@@ -50,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(new Intent(getBaseContext(), ScanService.class));
+        stopService(new Intent(getBaseContext(), BleScanService.class));
         stopService(new Intent(getBaseContext(), ParseService.class));
-        stopService(new Intent(getBaseContext(), TimerService.class));
+        stopService(new Intent(getBaseContext(), FilterService.class));
         stopService(new Intent(getBaseContext(), PositioningService.class));
     }
 }

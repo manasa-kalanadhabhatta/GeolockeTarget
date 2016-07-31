@@ -27,22 +27,24 @@
         </activity>
 
         <service
-            android:name=".services.ScanService"
+            android:name=".services.BleScanService"
             android:exported="false"/>
         <service
             android:name=".services.ParseService"
             android:exported="false"/>
         <service
-            android:name=".services.TimerService"
+            android:name=".services.FilterService"
             android:exported="false"/>
         <service
             android:name=".services.PositioningService"
             android:exported="false"/>
+        <service android:name=".services.LocalizingService" android:exported="false"/>
 
         <receiver android:name=".services.ParseService$ScanReceiver"/>
-        <receiver android:name=".services.TimerService$ListReceiver"/>
+        <receiver android:name=".services.FilterService$ListReceiver"/>
         <receiver android:name=".services.PositioningService$ParsedListReceiver"/>
-        <receiver android:name=".MapsActivity$PositionReceiver"/>
+        <receiver android:name=".services.LocalizingService$PositionReceiver"/>
+        <receiver android:name=".MapsActivity$LocationReceiver"/>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

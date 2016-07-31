@@ -6,15 +6,18 @@ import android.os.Parcelable;
 public class Position implements Parcelable {
     private double mLatitude;
     private double mLongitude;
+    private GeolockeIBeaconScan mGeolockeIBeaconScan;
 
-    public Position(double pLatitude, double pLongitude) {
+    public Position(double pLatitude, double pLongitude, GeolockeIBeaconScan pGeolockeIBeaconScan) {
         mLatitude = pLatitude;
         mLongitude = pLongitude;
+        mGeolockeIBeaconScan = pGeolockeIBeaconScan;
     }
 
     public Position(Parcel pParcel) {
         mLatitude = pParcel.readDouble();
         mLongitude = pParcel.readDouble();
+        mGeolockeIBeaconScan = pParcel.readParcelable(GeolockeIBeaconScan.class.getClassLoader());
     }
 
     public static final Creator<Position> CREATOR = new Creator<Position>() {
@@ -39,6 +42,7 @@ public class Position implements Parcelable {
         return "Position{" +
                 "mLatitude=" + mLatitude +
                 ", mLongitude=" + mLongitude +
+                ", mGeolockeIBeaconScan=" + mGeolockeIBeaconScan +
                 '}';
     }
 
@@ -50,9 +54,14 @@ public class Position implements Parcelable {
         return mLongitude;
     }
 
+    public GeolockeIBeaconScan getGeolockeIBeaconScan() {
+        return mGeolockeIBeaconScan;
+    }
+
     @Override
     public void writeToParcel(Parcel pParcel, int pI) {
         pParcel.writeDouble(this.mLatitude);
         pParcel.writeDouble(this.mLongitude);
+        pParcel.writeParcelable(mGeolockeIBeaconScan,0);
     }
 }

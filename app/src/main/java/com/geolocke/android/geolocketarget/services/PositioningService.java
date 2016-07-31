@@ -9,6 +9,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.geolocke.android.geolocketarget.beans.GeolockeIBeacon;
+import com.geolocke.android.geolocketarget.beans.GeolockeIBeaconScan;
+import com.geolocke.android.geolocketarget.beans.Position;
 import com.geolocke.android.geolocketarget.trilateration.NonLinearLeastSquaresSolver;
 import com.geolocke.android.geolocketarget.trilateration.TrilaterationFunction;
 
@@ -16,9 +19,8 @@ import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by Manasa on 12-07-2016.
@@ -27,9 +29,10 @@ public class PositioningService extends Service {
     public static final Double RADIANS = 57.2957795;
     private static final int MAX_BEACONS = 10;
     ParsedListReceiver mParsedListReceiver;
-    double[][] mPositions = new double[MAX_BEACONS][2];
-    double[] mDistances = new double[MAX_BEACONS];
+    double[][] mLatLngArray = new double[MAX_BEACONS][2];
+    double[] mDistanceArray = new double[MAX_BEACONS];
     int mIndex;
+    Position mPosition;
 
 
     @Nullable
@@ -41,7 +44,7 @@ public class PositioningService extends Service {
     @Override
     public int onStartCommand(Intent pIntent, int pFlags, int pStartId) {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("PARSED_BROADCAST");
+        intentFilter.addAction("GEOLOCKE_IBEACON_SCAN_BROADCAST");
         mParsedListReceiver = new ParsedListReceiver();
         registerReceiver(mParsedListReceiver, intentFilter);
 
@@ -52,47 +55,51 @@ public class PositioningService extends Service {
 
         @Override
         public void onReceive(Context pContext, Intent pIntent) {
-            Log.i("got", "intent");
 
-            try{
-                JSONObject mParseObject = new JSONObject(pIntent.getStringExtra("PARSED_STRUCTURE"));
-                JSONArray mParseArray = mParseObject.getJSONArray("PARSED_LIST");
-                mIndex = 0;
-                for(int i=0; i<mParseArray.length(); i++){
-                    JSONObject deviceObject = mParseArray.getJSONObject(i);
-                    // TODO: 29-07-2016 put actual latlng 
-                    /*double lat = deviceObject.getDouble("LATITUDE");
-                    double lng = deviceObject.getDouble("LONGITUDE");*/
-                    double lat = 28.5253323;
-                    double lng = 77.5782068;
-                    mPositions[mIndex] = LatLngToXY(lat,lng);
-                    mDistances[mIndex] = deviceObject.getDouble("DISTANCE_IN_METRES");
-                    mIndex++;
-                }
+            GeolockeIBeaconScan geolockeIBeaconScan = pIntent.getExtras().getParcelable("GEOLOCKE_IBEACON_SCAN");
+            ArrayList<GeolockeIBeacon> geolockeIBeaconList = new ArrayList<GeolockeIBeacon>();
+            geolockeIBeaconList = geolockeIBeaconScan.getGeolockeIBeaconList();
+            ArrayList<Integer> rssiList = new ArrayList<Integer>();
+            rssiList = geolockeIBeaconScan.getRssiList();
 
-                NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(mPositions, mDistances), new LevenbergMarquardtOptimizer());
-                LeastSquaresOptimizer.Optimum optimum = solver.solve();
+            mIndex = 0;
+            for(int i=0; i<geolockeIBeaconList.size(); i++){
+                GeolockeIBeacon geolockeIBeacon = geolockeIBeaconList.get(i);
+                Double rssi = Double.parseDouble(rssiList.get(i).toString());
+                int txPower = geolockeIBeacon.getTxPower();
+                Double distance = calculateDistance(rssi, txPower);
 
-                double[] centroid = optimum.getPoint().toArray();
-                double[] latlng = XYToLatLng(centroid[0], centroid[1]);
+                // TODO: 29-07-2016 put actual latlng instead of the hardcoded ones - uncomment below code
+                    /*double lat = geolockeIBeacon.getLatitude();
+                    double lng = geolockeIBeacon.getLongitude();*/
 
-                // error and geometry information; may throw SingularMatrixException depending the threshold argument provided
-                RealVector standardDeviation = optimum.getSigma(0);
-                RealMatrix covarianceMatrix = optimum.getCovariances(0);
-
-                Log.i("Position:", String.valueOf(latlng[0])+","+String.valueOf(latlng[1]));
-                Log.i("Standard Deviation:",standardDeviation.toArray().toString());
-                Log.i("Covariance Matrix:",covarianceMatrix.getData().toString());
-
-                Intent intent = new Intent();
-                intent.putExtra("LATITUDE",latlng[0]);
-                intent.putExtra("LONGITUDE",latlng[1]);
-                intent.setAction("POSITION");
-                sendBroadcast(intent);
-
-            }catch (JSONException e){
-                e.printStackTrace();
+                double lat = 28.5253323;
+                double lng = 77.5782068;
+                mLatLngArray[mIndex] = LatLngToXY(lat,lng);
+                mDistanceArray[mIndex] = distance;
+                mIndex++;
             }
+
+            NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(mLatLngArray, mDistanceArray), new LevenbergMarquardtOptimizer());
+            LeastSquaresOptimizer.Optimum optimum = solver.solve();
+
+            double[] centroid = optimum.getPoint().toArray();
+            double[] latlng = XYToLatLng(centroid[0], centroid[1]);
+
+            // TODO: 31-07-2016 use these when we know how to (or what they are)
+            // error and geometry information; may throw SingularMatrixException depending the threshold argument provided
+            /*RealVector standardDeviation = optimum.getSigma(0);
+            RealMatrix covarianceMatrix = optimum.getCovariances(0);*/
+
+            Log.i("Position:", String.valueOf(latlng[0])+","+String.valueOf(latlng[1]));
+
+            mPosition = new Position(latlng[0],latlng[1],geolockeIBeaconScan);
+
+            Intent intent = new Intent();
+            intent.putExtra("POSITION",mPosition);
+            intent.setAction("POSITION_BROADCAST");
+            sendBroadcast(intent);
+
         }
     }
 
@@ -109,10 +116,6 @@ public class PositioningService extends Service {
         Double yy = (pLat)*METERS_DEGLAT(0.0);
 
         Double r = Math.sqrt(xx*xx + yy*yy);
-
-      /* alert('LL_TO_XY: xx=' + xx + ' yy=' + yy + ' r=' + r);
-      return false;*/
-
         if(r!=0.0)
         {
             Double ct = xx/r;
@@ -168,6 +171,17 @@ public class PositioningService extends Service {
     public Double DEG_TO_RADIANS(Double pX)
     {
         return (pX/RADIANS);
+    }
+
+    public Double calculateDistance(Double pRssi, int pTxPower){
+        if(pRssi == 0)
+            return -1.0;
+        Double ratio = pRssi*1.0/pTxPower;
+        if(ratio<1.0){
+            return Math.pow(ratio, 10);
+        }else {
+            return ((0.89976)*Math.pow(ratio,7.7095) + 0.111);
+        }
     }
 
 }

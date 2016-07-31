@@ -10,6 +10,7 @@ public class GeolockeIBeacon implements Parcelable {
     private final String mName;
     private final int mMajor;
     private final int mMinor;
+    private final byte mTxPower;
     private final double mLatitude;
     private final double mLongitude;
 
@@ -21,14 +22,16 @@ public class GeolockeIBeacon implements Parcelable {
         mMinor = pParcel.readInt();
         mLatitude = pParcel.readDouble();
         mLongitude = pParcel.readDouble();
+        mTxPower = pParcel.readByte();
     }
 
-    public GeolockeIBeacon(String pMacAddress, String pUUID, String pName, int pMajor, int pMinor, double pLatitude, double pLongitude) {
+    public GeolockeIBeacon(String pMacAddress, String pUUID, String pName, int pMajor, int pMinor, byte pTxPower, double pLatitude, double pLongitude) {
         mMacAddress = pMacAddress;
         mUUID = pUUID;
         mName = pName;
         mMajor = pMajor;
         mMinor = pMinor;
+        mTxPower = pTxPower;
         mLatitude = pLatitude;
         mLongitude = pLongitude;
     }
@@ -45,7 +48,9 @@ public class GeolockeIBeacon implements Parcelable {
         return mName;
     }
 
-
+    public byte getTxPower() {
+        return mTxPower;
+    }
 
     public int getMajor() {
         return mMajor;
@@ -88,6 +93,8 @@ public class GeolockeIBeacon implements Parcelable {
 
         pParcel.writeInt(mMajor);
         pParcel.writeInt(mMinor);
+        pParcel.writeByte(mTxPower);
+
         pParcel.writeDouble(mLatitude);
         pParcel.writeDouble(mLongitude);
     }
@@ -102,6 +109,7 @@ public class GeolockeIBeacon implements Parcelable {
                 ", Name='" + mName + '\'' +
                 ", Major=" + mMajor +
                 ", Minor=" + mMinor +
+                ", TxPower='" + mTxPower + '\'' +
                 ", Latitude=" + mLatitude +
                 ", Longitude=" + mLongitude +
                 '}';
