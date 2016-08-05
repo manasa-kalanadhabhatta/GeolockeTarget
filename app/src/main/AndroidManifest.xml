@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.geolocke.android.geolocketarget">
 
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
 
@@ -45,6 +46,37 @@
         <receiver android:name=".services.PositioningService$ParsedListReceiver"/>
         <receiver android:name=".services.LocalizingService$PositionReceiver"/>
         <receiver android:name=".MapsActivity$LocationReceiver"/>
+
+        <provider android:authorities="com.geolocke.android.geolocketarget.ibeacons.provider"
+                  android:name=".contentprovider.IBeaconsContentProvider"
+                  android:label="IBeacons"
+                  android:exported="false"
+                  android:syncable="true"
+            />
+
+
+
+        <!-- Sync adapter related service -->
+        <service
+            android:name=".syncadapter.IBeaconsSyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter" />
+        </service>
+
+        <service
+            android:name=".authenticator.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

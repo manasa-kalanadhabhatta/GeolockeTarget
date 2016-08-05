@@ -28,10 +28,10 @@ public class MainActivity extends AppCompatActivity {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
 
-/**
- * Checks if Bluetooth is enabled on device
- * Use this within and Activity
- */
+        /**
+         * Checks if Bluetooth is enabled on device
+         * Use this within and Activity
+         */
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             /*Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);*/
@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(getBaseContext(), FilterService.class));
         startService(new Intent(getBaseContext(), PositioningService.class));
 
-        Intent intent = new Intent(this,MapsActivity.class);
-        startActivity(intent);
+        /*Intent intent = new Intent(this,MapsActivity.class);
+        startActivity(intent);*/
     }
 
     @Override

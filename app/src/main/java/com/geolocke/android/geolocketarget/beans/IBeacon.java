@@ -1,7 +1,11 @@
 package com.geolocke.android.geolocketarget.beans;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.geolocke.android.geolocketarget.contentprovider.IBeaconsDbHelper;
 
 
 public final class IBeacon implements Parcelable
@@ -94,5 +98,36 @@ public final class IBeacon implements Parcelable
         dest.writeInt(mMinor);
         dest.writeString(mName);
         dest.writeByte(mTxPower);
+    }
+
+
+    // Create a TvShow object from a cursor
+    public static IBeacon fromCursor(Cursor curIBeacons) {
+        String name = curIBeacons.getString(curIBeacons.getColumnIndex(IBeaconsDbHelper.IBEACONS_COL_NAME));
+        String UUID = curIBeacons.getString(curIBeacons.getColumnIndex(IBeaconsDbHelper.IBEACONS_COL_UUID));
+        String macAddress = curIBeacons.getString(curIBeacons.getColumnIndex(IBeaconsDbHelper.IBEACONS_COL_MAC_ADDRESS));
+        int major = curIBeacons.getInt(curIBeacons.getColumnIndex(IBeaconsDbHelper.IBEACONS_COL_MAJOR));
+        int minor = curIBeacons.getInt(curIBeacons.getColumnIndex(IBeaconsDbHelper.IBEACONS_COL_MINOR));;
+        byte txPower = (byte) curIBeacons.getInt(curIBeacons.getColumnIndex(IBeaconsDbHelper.IBEACONS_COL_TX_POWER));
+
+        return new IBeacon(macAddress,UUID,major,minor,name,txPower);
+    }
+
+    /**
+     * Convenient method to get the objects data members in ContentValues object.
+     * This will be useful for Content Provider operations,
+     * which use ContentValues object to represent the data.
+     *
+     * @return
+     */
+    public ContentValues getContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(IBeaconsDbHelper.IBEACONS_COL_NAME, this.getName());
+        values.put(IBeaconsDbHelper.IBEACONS_COL_MAC_ADDRESS, this.getMacAddress());
+        values.put(IBeaconsDbHelper.IBEACONS_COL_UUID, this.getUUID());
+        values.put(IBeaconsDbHelper.IBEACONS_COL_MAJOR, this.getMajor());
+        values.put(IBeaconsDbHelper.IBEACONS_COL_MINOR, this.getMinor());
+        values.put(IBeaconsDbHelper.IBEACONS_COL_TX_POWER, this.getTxPower());
+        return values;
     }
 }
