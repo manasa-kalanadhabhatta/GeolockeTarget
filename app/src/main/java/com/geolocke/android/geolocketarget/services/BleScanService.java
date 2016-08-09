@@ -4,8 +4,10 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.geolocke.android.geolocketarget.beans.BleBeaconScan;
 import com.geolocke.android.geolocketarget.beans.IBeacon;
@@ -14,7 +16,6 @@ import com.geolocke.android.geolocketarget.beans.IBeaconScan;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
-
 /**
  * Created by Manasa on 06-07-2016.
  */
@@ -25,11 +26,33 @@ public class BleScanService extends Service {
     ArrayList<Integer> mRssiArrayList = new ArrayList<Integer>();
     BleBeaconScan mBleBeaconScan;
     public static int sClear = 0;
+    private IBinder mBinder = new BleScanServiceBinder();
+
+
+
+    public class BleScanServiceBinder extends Binder {
+        public BleScanService getService() {
+            return BleScanService.this;
+        }
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        Log.v("", "in onRebind");
+        super.onRebind(intent);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.v("", "in onUnbind");
+        return true;
+    }
 
     @Nullable
     @Override
     public IBinder onBind(Intent pIntent) {
-        return null;
+        Log.v("BLEBIND", "in onBind");
+        return mBinder;
     }
 
     @Override
