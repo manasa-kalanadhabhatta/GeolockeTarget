@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".GeolockeTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -35,6 +38,9 @@
             android:exported="false"/>
         <service
             android:name=".services.FilterService"
+            android:exported="false"/>
+        <service
+            android:name=".GeolockeService"
             android:exported="false"/>
         <service
             android:name=".services.PositioningService"
