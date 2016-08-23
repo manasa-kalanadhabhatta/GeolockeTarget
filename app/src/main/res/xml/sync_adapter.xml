@@ -2,7 +2,7 @@
 
 <sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
               android:contentAuthority="com.geolocke.android.geolocketarget.ibeacons.provider"
-              android:accountType="com.udinic.sync_example"
+              android:accountType="com.geolocke.android.geolocketarget"
               android:userVisible="true"
               android:allowParallelSyncs="false"
               android:isAlwaysSyncable="true"

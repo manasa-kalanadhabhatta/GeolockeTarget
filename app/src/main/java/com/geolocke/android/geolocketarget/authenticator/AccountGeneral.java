@@ -1,27 +1,22 @@
 package com.geolocke.android.geolocketarget.authenticator;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Udini
- * Date: 20/03/13
- * Time: 18:11
- */
+
 public class AccountGeneral {
 
     /**
      * Account type id
      */
-    public static final String ACCOUNT_TYPE = "com.udinic.sync_example";
+    public static final String ACCOUNT_TYPE = "com.geolocke.android.geolocketarget";
 
     /**
      * Account name
      */
-    public static final String ACCOUNT_NAME = "Udinic";
+    public static final String ACCOUNT_NAME = "Geolocke";
 
     /**
      * User data fields
      */
-    public static final String USERDATA_USER_OBJ_ID = "userObjectId";   //Parse.com object id
+    public static final String USERNAME = "username";   //Parse.com object id
 
     /**
      * Auth token types

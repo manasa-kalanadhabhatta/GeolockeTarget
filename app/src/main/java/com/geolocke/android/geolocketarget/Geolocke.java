@@ -1,5 +1,7 @@
 package com.geolocke.android.geolocketarget;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ComponentName;
 
 import android.content.Context;
@@ -7,7 +9,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 
 import android.os.IBinder;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.geolocke.android.geolocketarget.authenticator.AccountGeneral;
+import com.geolocke.android.geolocketarget.syncadapter.IBeaconsSyncAdapter;
 
 
 public class Geolocke {
@@ -78,7 +84,13 @@ public class Geolocke {
             GeolockeService.GeolockeServiceBinder binder = (GeolockeService.GeolockeServiceBinder) service;
             mGeolockeService = binder.getService();
             mGeolockeServiceBound = true;
-
+            try {
+                Account account = IBeaconsSyncAdapter.getSyncAccount(mGeolockeContext);
+                AccountManager accountManager = (AccountManager)mGeolockeContext .getSystemService(mGeolockeContext.ACCOUNT_SERVICE);
+                Log.d("RAHUL", "AuthToken = " + accountManager.getUserData(account, AccountGeneral.USERNAME));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             mGeolockeConnectionListener.onGeolockeConnected(new Geolocke(mGeolockeContext));
         }
     };

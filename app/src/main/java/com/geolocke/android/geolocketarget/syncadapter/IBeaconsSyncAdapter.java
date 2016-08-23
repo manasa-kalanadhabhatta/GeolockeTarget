@@ -16,16 +16,22 @@
 package com.geolocke.android.geolocketarget.syncadapter;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
 
+import com.geolocke.android.geolocketarget.R;
+import com.geolocke.android.geolocketarget.authenticator.AccountGeneral;
 import com.geolocke.android.geolocketarget.beans.IBeacon;
 import com.geolocke.android.geolocketarget.contentprovider.IBeaconsContract;
 
@@ -49,9 +55,141 @@ public class IBeaconsSyncAdapter extends AbstractThreadedSyncAdapter {
 
     //private final AccountManager mAccountManager;
 
+    public static void initializeSyncAdapter(Context context) throws Exception {
+        getSyncAccount(context);
+    }
+
     public IBeaconsSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         //mAccountManager = AccountManager.get(context);
+    }
+
+    /**
+     * Helper method to get the fake account to be used with SyncAdapter, or make a new one
+     * if the fake account doesn't exist yet.  If we make a new account, we call the
+     * onAccountCreated method so we can initialize things.
+     *
+     * @param context The context used to access the account service
+     * @return a fake account.
+     */
+    public static Account getSyncAccount(Context context) throws Exception {
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+
+        // Create the account type and default account
+        Account account=null;
+        for(Account lAccount: accountManager.getAccounts()){
+            if(lAccount.type.equals(AccountGeneral.ACCOUNT_TYPE)){
+                account = lAccount;
+            }
+        }
+        if(account!=null){
+            return account;
+        }
+        else{
+            try {
+                createSyncAccount(context,"hello","how","are");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            onAccountCreated(account, context);
+        }
+        return account;
+    }
+
+
+
+    private static void createSyncAccount(Context context,String username,String password,String email) throws Exception{
+
+
+        // Create the account type and default account
+        Account newAccount = new Account(AccountGeneral.ACCOUNT_NAME, AccountGeneral.ACCOUNT_TYPE);
+
+        // Get an instance of the Android account manager
+        AccountManager accountManager = (AccountManager)context .getSystemService(context.ACCOUNT_SERVICE);
+
+        Bundle userData = new Bundle();
+        userData.putString(AccountGeneral.USERNAME, username);
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        if (accountManager.addAccountExplicitly(newAccount, password, userData)) {
+            accountManager.setAuthToken(newAccount, AccountGeneral.ACCOUNT_TYPE, username);
+            ContentResolver.setIsSyncable(newAccount, IBeaconsContract.AUTHORITY, 1);
+            ContentResolver.setMasterSyncAutomatically(true); // enables AutoSync
+
+
+            /*
+         * Since we've created an account
+         */
+            IBeaconsSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+
+        /*
+         * Without calling setSyncAutomatically, our periodic sync will not be enabled.
+         */
+            ContentResolver.setSyncAutomatically(newAccount, IBeaconsContract.AUTHORITY, true);
+
+        /*
+         * Finally, let's do a sync to get things started
+         */
+            syncImmediately(context);
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+            Log.i(TAG, "Account Created");
+        } else {
+            Log.i(TAG, "Account Can't Created Some Error Occur");
+            /*
+             * The account exists or some other error occurred. Log this, report it,
+             * or handle it internally.
+             */
+        }
+    }
+
+    private static void onAccountCreated(Account newAccount, Context context) throws Exception {
+
+    }
+
+    public static final int SYNC_INTERVAL = 60 * 180;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
+
+
+    /**
+     * Helper method to schedule the sync adapter periodic execution
+     */
+    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) throws Exception {
+        Account account = getSyncAccount(context);
+        String authority = IBeaconsContract.AUTHORITY;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // we can enable inexact timers in our periodic sync
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(syncInterval, flexTime).
+                    setSyncAdapter(account, authority).
+                    setExtras(new Bundle()).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account,
+                    authority, new Bundle(), syncInterval);
+        }
+    }
+
+
+    /**
+            * Helper method to have the sync adapter sync immediately
+    *
+            * @param context The context used to access the account service
+    */
+    public static void syncImmediately(Context context) throws Exception {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(getSyncAccount(context),
+                IBeaconsContract.AUTHORITY, bundle);
     }
 
     @Override
@@ -143,6 +281,7 @@ public class IBeaconsSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             */
+
 
             Log.d("geolocke", TAG + "> Finished.");
 
