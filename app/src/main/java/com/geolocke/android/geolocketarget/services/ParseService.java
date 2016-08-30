@@ -78,6 +78,10 @@ public class ParseService extends Service {
         this.mGeolockeIBeaconListener = pGeolockeIBeaconListener;
     }
 
+    public void unregisterGeolockeIBeaconListener() {
+        this.mGeolockeIBeaconListener = null;
+    }
+
 
     public class ScanReceiver extends BroadcastReceiver{
         @Override
@@ -115,7 +119,8 @@ public class ParseService extends Service {
 
 
                 GeolockeIBeacon geolockeIBeacon = new GeolockeIBeacon(iBeacon.getMacAddress(),iBeacon.getUUID(),iBeacon.getName(),iBeacon.getMajor(),iBeacon.getMinor(),iBeacon.getTxPower(),latitude,longitude);
-                mGeolockeIBeaconListener.onGeolockeIBeaconFound(geolockeIBeacon);
+                if(mGeolockeIBeaconListener!=null)
+                    mGeolockeIBeaconListener.onGeolockeIBeaconFound(geolockeIBeacon);
                 mGeolockeIBeaconList.add(geolockeIBeacon);
                 mRssiList.add(rssi);
             }

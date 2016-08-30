@@ -18,82 +18,45 @@ import com.geolocke.android.geolocketarget.syncadapter.IBeaconsSyncAdapter;
 
 public class Geolocke {
 
-    private static GeolockeService mGeolockeService;
-    private static GeolockeCredentials mGeolockeCredentials;
-    private static boolean mGeolockeServiceBound = false;
-    private static GeolockeConnectionListener mGeolockeConnectionListener;
-    private static Context mGeolockeContext;
     private Context mContext = null;
+    private static boolean mGeolockeConnected=false;
+    private static GeolockeConnectionListener mGeolockeConnectionListener;
 
-
-    public static final void initializeGeolocke(GeolockeCredentials pGeolockeCredentials){
-        mGeolockeCredentials = pGeolockeCredentials;
-    }
 
     public Geolocke() throws NoSuchMethodException {
         throw new NoSuchMethodException("CANNOT SUPPORT");
     }
 
-    private Geolocke(Context pContext){
-        mContext = pContext;
-    }
-
-    public void startServices(Context pContext){
-        if(pContext == mGeolockeContext && mGeolockeServiceBound){
-            pContext.startService(new Intent(pContext,GeolockeService.class));
-        }
-    }
-
-    public Context getContext(){
-        return this.mContext;
-    }
-
-
-    public void disconnectGeolocke(){
-        if(mGeolockeServiceBound) {
-            mGeolockeContext.unbindService(mGeolockeServiceConnection);
-        }
-    }
-
-    public static final void connectGeolocke(GeolockeConnectionListener pGeolockeConnectionListener) throws InvalidCredentialsException
-    {
-
-        if(mGeolockeCredentials.getApplicationKey()!="spencers"){
-            throw new InvalidCredentialsException("Wrong Credentials",mGeolockeCredentials.getApplicationKey(),mGeolockeCredentials.getDeveloperKey());
-        }
-        mGeolockeContext = mGeolockeCredentials.getContext();
-        mGeolockeConnectionListener = pGeolockeConnectionListener;
-
-        if(!mGeolockeServiceBound) {
-            Intent intent = new Intent(mGeolockeContext, GeolockeService.class);
-            mGeolockeContext.bindService(intent, mGeolockeServiceConnection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-
-    private static ServiceConnection mGeolockeServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mGeolockeServiceBound = false;
+    public static void disconnectGeolocke(GeolockeInstance pGeolockeInstance){
+        if(mGeolockeConnected) {
+            pGeolockeInstance.stopServices();
+            mGeolockeConnected = false;
             mGeolockeConnectionListener.onGeolockeDisconnected();
         }
+    }
 
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            GeolockeService.GeolockeServiceBinder binder = (GeolockeService.GeolockeServiceBinder) service;
-            mGeolockeService = binder.getService();
-            mGeolockeServiceBound = true;
+    public static final void connectGeolocke(Context pContext,GeolockeCredentials pGeolockeCredentials,GeolockeConnectionListener pGeolockeConnectionListener) throws InvalidCredentialsException
+    {
+        if(!mGeolockeConnected) {
+            if (pGeolockeCredentials.getApplicationKey() != "spencers") {
+                throw new InvalidCredentialsException("Wrong Credentials", pGeolockeCredentials.getApplicationKey(), pGeolockeCredentials.getDeveloperKey());
+            }
+            mGeolockeConnectionListener = pGeolockeConnectionListener;
             try {
-                Account account = IBeaconsSyncAdapter.getSyncAccount(mGeolockeContext);
-                AccountManager accountManager = (AccountManager)mGeolockeContext .getSystemService(mGeolockeContext.ACCOUNT_SERVICE);
+                Account account = IBeaconsSyncAdapter.getSyncAccount(pContext);
+                AccountManager accountManager = (AccountManager) pContext.getSystemService(pContext.ACCOUNT_SERVICE);
                 Log.d("RAHUL", "AuthToken = " + accountManager.getUserData(account, AccountGeneral.USERNAME));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            mGeolockeConnectionListener.onGeolockeConnected(new Geolocke(mGeolockeContext));
+            GeolockeInstance geolockeInstance = new GeolockeInstance(pContext);
+            mGeolockeConnected = true;
+            mGeolockeConnectionListener.onGeolockeConnected(geolockeInstance);
         }
-    };
+    }
+
+
+
 
 
 

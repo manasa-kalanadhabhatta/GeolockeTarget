@@ -3,11 +3,15 @@ package com.geolocke.android.geolocketarget;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
-public class GeolockeTestActivity  extends Activity implements GeolockeConnectionListener{
+import com.geolocke.android.geolocketarget.beans.GeolockeIBeacon;
+import com.geolocke.android.geolocketarget.interfaces.GeolockeIBeaconListener;
+
+public class GeolockeTestActivity  extends Activity implements GeolockeConnectionListener,GeolockeIBeaconListener{
 
     private static final String TAG = GeolockeTestActivity.class.getSimpleName();
-    private Geolocke mGeolocke;
+    private GeolockeInstance mGeolockeInstance;
     private static GeolockeCredentials mGeolockeCredentials;
     private boolean mGeolockConnected = false;
 
@@ -20,8 +24,12 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
                 setDeveloperKey("hi").
                 addGeolockeFeature("j").
                 build();
-        Geolocke.initializeGeolocke(mGeolockeCredentials);
-        Log.d(TAG, "Initializing Geolocke Credentials. Will attempt Connect Soon.");
+        try {
+            Geolocke.connectGeolocke(this,mGeolockeCredentials,this);
+        } catch (InvalidCredentialsException e) {
+            Log.d(TAG,"Invalid Credentials");
+            e.printStackTrace();
+        }
 
     }
 
@@ -38,11 +46,13 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
 
     @Override
     protected void onPause() {
-        super.onPause();
+        super.onPause();/*
         if (mGeolockConnected){
-            mGeolocke.disconnectGeolocke();
+            if(mGeolockeInstance.cancelGeolockIBeaconUpdates())
+                Log.d(TAG, "Cancelling IBeacon Updates.");
+            Geolocke.disconnectGeolocke(mGeolockeInstance);
             Log.d(TAG, "Attempting Geolocke Disonnection. Wait for Callback!");
-        }
+        }*/
     }
 
     @Override
@@ -56,7 +66,7 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
         super.onResume();
         if (!mGeolockConnected){
             try {
-                Geolocke.connectGeolocke(this);
+                Geolocke.connectGeolocke(this,mGeolockeCredentials,this);
                 Log.d(TAG, "Attempting Geolocke Connection. Check for Credentials");
 
             } catch (InvalidCredentialsException e) {
@@ -66,17 +76,24 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
     }
 
     @Override
-    public void onGeolockeConnected(Geolocke pGeolocke) {
-        this.mGeolocke = pGeolocke;
+    public void onGeolockeConnected(GeolockeInstance pGeolockeInstance) {
+        this.mGeolockeInstance = pGeolockeInstance;
         this.mGeolockConnected = true;
-        this.mGeolocke.startServices(mGeolocke.getContext());
-        Log.d(TAG,"Geolocke Connected. Starting Geolocke Service!");
+        Log.d(TAG, "Geolocke Connected. Requesting for IBeacon Updates");
+        if(this.mGeolockeInstance.requestGeolockIBeaconUpdates(this)){
+            Log.d(TAG, "Successful in Registering IBeacon Listener");
+        }
     }
 
     @Override
     public void onGeolockeDisconnected() {
-        this.mGeolocke = null;
+        this.mGeolockeInstance = null;
         this.mGeolockConnected = false;
         Log.d(TAG,"Geolocke Disconnected. Stopping Geolocke Service!");
+    }
+
+    @Override
+    public void onGeolockeIBeaconFound(GeolockeIBeacon pGeolockeIBeacon) {
+        Toast.makeText(this, "IBEACON = "+pGeolockeIBeacon.getMacAddress(), Toast.LENGTH_SHORT).show();
     }
 }

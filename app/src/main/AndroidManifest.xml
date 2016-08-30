@@ -43,9 +43,6 @@
             android:name=".services.FilterService"
             android:exported="false"/>
         <service
-            android:name=".GeolockeService"
-            android:exported="false"/>
-        <service
             android:name=".services.PositioningService"
             android:exported="false"/>
         <service android:name=".services.LocalizingService" android:exported="false"/>
