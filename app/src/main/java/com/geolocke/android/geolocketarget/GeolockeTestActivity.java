@@ -51,7 +51,7 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
     protected void onPause() {
         super.onPause();/*
         if (mGeolockConnected){
-            if(mGeolockeInstance.cancelGeolockIBeaconUpdates())
+            if(mGeolockeInstance.cancelGeolockeIBeaconUpdates())
                 Log.d(TAG, "Cancelling IBeacon Updates.");
             Geolocke.disconnectGeolocke(mGeolockeInstance);
             Log.d(TAG, "Attempting Geolocke Disonnection. Wait for Callback!");
@@ -83,7 +83,7 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
         this.mGeolocke = pGeolocke;
         this.mGeolockConnected = true;
         Log.d(TAG, "Geolocke Connected. Requesting for IBeacon Updates");
-        if(this.mGeolocke.requestGeolockIBeaconUpdates(this)){
+        if(this.mGeolocke.requestGeolockeIBeaconUpdates(this)){
             Log.d(TAG, "Successful in Registering IBeacon Listener");
         }
     }

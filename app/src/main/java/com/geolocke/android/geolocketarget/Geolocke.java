@@ -135,13 +135,13 @@ public class Geolocke {
         mContext.startService(new Intent(mContext, PositioningService.class));
     }
 
-    public boolean requestGeolockIBeaconUpdates(GeolockeIBeaconListener pGeolockeIBeaconListener){
+    public boolean requestGeolockeIBeaconUpdates(GeolockeIBeaconListener pGeolockeIBeaconListener){
         this.mGeolockeIBeaconListener = pGeolockeIBeaconListener;
         this.initializeServices();
         return true;
     }
 
-    public boolean cancelGeolockIBeaconUpdates(){
+    public boolean cancelGeolockeIBeaconUpdates(){
         if(mParseServiceBound){
             mParseService.unregisterGeolockeIBeaconListener();
             return true;
