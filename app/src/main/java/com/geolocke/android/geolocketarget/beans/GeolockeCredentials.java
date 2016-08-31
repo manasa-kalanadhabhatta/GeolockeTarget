@@ -1,4 +1,4 @@
-package com.geolocke.android.geolocketarget;
+package com.geolocke.android.geolocketarget.beans;
 
 import android.content.Context;
 import android.util.Log;

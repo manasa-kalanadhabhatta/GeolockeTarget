@@ -22,9 +22,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-
-        </activity>
         <activity android:name=".GeolockeTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -51,7 +48,7 @@
         <receiver android:name=".services.FilterService$ListReceiver"/>
         <receiver android:name=".services.PositioningService$ParsedListReceiver"/>
         <receiver android:name=".services.LocalizingService$PositionReceiver"/>
-        <receiver android:name=".MapsActivity$LocationReceiver"/>
+
 
         <provider android:authorities="com.geolocke.android.geolocketarget.ibeacons.provider"
                   android:name=".contentprovider.IBeaconsContentProvider"
@@ -96,10 +93,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key"/>
 
-        <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-        </activity>
     </application>
 
 </manifest>

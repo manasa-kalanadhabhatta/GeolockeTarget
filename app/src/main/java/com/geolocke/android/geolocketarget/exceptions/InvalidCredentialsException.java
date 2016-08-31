@@ -1,4 +1,4 @@
-package com.geolocke.android.geolocketarget;
+package com.geolocke.android.geolocketarget.exceptions;
 
 public class InvalidCredentialsException extends Exception {
 

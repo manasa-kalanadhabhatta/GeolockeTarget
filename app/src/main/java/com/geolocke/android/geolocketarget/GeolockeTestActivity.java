@@ -5,13 +5,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.geolocke.android.geolocketarget.beans.GeolockeCredentials;
 import com.geolocke.android.geolocketarget.beans.GeolockeIBeacon;
+import com.geolocke.android.geolocketarget.exceptions.InvalidCredentialsException;
+import com.geolocke.android.geolocketarget.interfaces.GeolockeConnectionListener;
 import com.geolocke.android.geolocketarget.interfaces.GeolockeIBeaconListener;
 
 public class GeolockeTestActivity  extends Activity implements GeolockeConnectionListener,GeolockeIBeaconListener{
 
     private static final String TAG = GeolockeTestActivity.class.getSimpleName();
-    private GeolockeInstance mGeolockeInstance;
+    private Geolocke mGeolocke;
     private static GeolockeCredentials mGeolockeCredentials;
     private boolean mGeolockConnected = false;
 
@@ -76,18 +79,18 @@ public class GeolockeTestActivity  extends Activity implements GeolockeConnectio
     }
 
     @Override
-    public void onGeolockeConnected(GeolockeInstance pGeolockeInstance) {
-        this.mGeolockeInstance = pGeolockeInstance;
+    public void onGeolockeConnected(Geolocke pGeolocke) {
+        this.mGeolocke = pGeolocke;
         this.mGeolockConnected = true;
         Log.d(TAG, "Geolocke Connected. Requesting for IBeacon Updates");
-        if(this.mGeolockeInstance.requestGeolockIBeaconUpdates(this)){
+        if(this.mGeolocke.requestGeolockIBeaconUpdates(this)){
             Log.d(TAG, "Successful in Registering IBeacon Listener");
         }
     }
 
     @Override
     public void onGeolockeDisconnected() {
-        this.mGeolockeInstance = null;
+        this.mGeolocke = null;
         this.mGeolockConnected = false;
         Log.d(TAG,"Geolocke Disconnected. Stopping Geolocke Service!");
     }
