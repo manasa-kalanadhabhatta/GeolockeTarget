@@ -5,11 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.geolocke.android.geolocketarget.beans.GeolockeCredentials;
-import com.geolocke.android.geolocketarget.beans.GeolockeIBeacon;
-import com.geolocke.android.geolocketarget.exceptions.InvalidCredentialsException;
-import com.geolocke.android.geolocketarget.interfaces.GeolockeConnectionListener;
-import com.geolocke.android.geolocketarget.interfaces.GeolockeIBeaconListener;
+import com.geolocke.android.targetsdk.Geolocke;
+import com.geolocke.android.targetsdk.beans.GeolockeCredentials;
+import com.geolocke.android.targetsdk.beans.GeolockeIBeacon;
+import com.geolocke.android.targetsdk.exceptions.InvalidCredentialsException;
+import com.geolocke.android.targetsdk.interfaces.GeolockeConnectionListener;
+import com.geolocke.android.targetsdk.interfaces.GeolockeIBeaconListener;
 
 public class GeolockeTestActivity  extends Activity implements GeolockeConnectionListener,GeolockeIBeaconListener{
 

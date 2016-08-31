@@ -1,0 +1,89 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.geolocke.android.targetsdk">
+
+
+
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the 'MyLocation' functionality.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+
+    <application android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <service
+            android:name="com.geolocke.android.targetsdk.services.BleScanService"
+            android:exported="false"/>
+        <service
+            android:name="com.geolocke.android.targetsdk.services.ParseService"
+            android:exported="false"/>
+        <service
+            android:name="com.geolocke.android.targetsdk.services.FilterService"
+            android:exported="false"/>
+        <service
+            android:name="com.geolocke.android.targetsdk.services.PositioningService"
+            android:exported="false"/>
+        <service android:name="com.geolocke.android.targetsdk.services.LocalizingService" android:exported="false"/>
+
+        <receiver android:name="com.geolocke.android.targetsdk.services.ParseService$ScanReceiver"/>
+        <receiver android:name="com.geolocke.android.targetsdk.services.FilterService$ListReceiver"/>
+        <receiver android:name="com.geolocke.android.targetsdk.services.PositioningService$ParsedListReceiver"/>
+        <receiver android:name="com.geolocke.android.targetsdk.services.LocalizingService$PositionReceiver"/>
+
+
+        <provider android:authorities="com.geolocke.android.geolocketarget.ibeacons.provider"
+                  android:name="com.geolocke.android.targetsdk.contentprovider.IBeaconsContentProvider"
+                  android:label="IBeacons"
+                  android:exported="false"
+                  android:syncable="true"
+            />
+
+
+
+        <!-- Sync adapter related service -->
+        <service
+            android:name="com.geolocke.android.targetsdk.syncadapter.IBeaconsSyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter" />
+        </service>
+
+        <service
+            android:name="com.geolocke.android.targetsdk.authenticator.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key"/>
+
+    </application>
+
+</manifest>
